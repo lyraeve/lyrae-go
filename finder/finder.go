@@ -51,9 +51,8 @@ func FindByNumber(number string) (lyr Lyr, err error) {
 		return lyr, err
 	}
 
-	fmt.Println("title: " + doc.Find("h3").First().Text())
-
-	fmt.Println("cover: " + doc.Find(".movie .screencap img").First().AttrOr("src", ""))
+	lyr.Title = doc.Find("h3").First().Text()
+	lyr.Cover = doc.Find(".movie .screencap img").First().AttrOr("src", "")
 
 	data := map[string]string{}
 
@@ -72,31 +71,17 @@ func FindByNumber(number string) (lyr Lyr, err error) {
 		fmt.Println(header + ": " + content)
 	}
 
-	var actors []string
-	var categories []string
-
 	doc.Find(".movie .info p .genre").Each(func(i int, s *goquery.Selection) {
 		if strings.Compare("", s.AttrOr("onmouseover", "")) == 0 {
-			actors = append(actors, strings.TrimSpace(s.Text()))
+			lyr.Actors = append(lyr.Actors, strings.TrimSpace(s.Text()))
 		} else {
-			categories = append(categories, strings.TrimSpace(s.Text()))
+			lyr.Genres = append(lyr.Genres, strings.TrimSpace(s.Text()))
 		}
 	})
 
-	fmt.Println(actors)
-	fmt.Println(categories)
-
-	var screenShots []string
-
 	doc.Find("#sample-waterfall .photo-frame img").Each(func(i int, s *goquery.Selection) {
-		screenShots = append(screenShots, s.AttrOr("src", ""))
+		lyr.ScreenShots = append(lyr.ScreenShots, s.AttrOr("src", ""))
 	})
-
-	fmt.Println("screenShots:")
-
-	for _, screenShot := range screenShots {
-		fmt.Println(screenShot)
-	}
 
 	return lyr, nil
 }
