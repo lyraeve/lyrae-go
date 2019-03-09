@@ -5,6 +5,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"gopkg.in/h2non/gentleman.v2"
 	"log"
+	"reflect"
 	"strings"
 )
 
@@ -14,13 +15,13 @@ var (
 	}
 
 	removeString = map[string]string{
-		"number":     "識別碼:",
-		"publish_at": "發行日期:",
-		"length":     "長度:",
-		"director":   "導演:",
-		"producer":   "製作商:",
-		"publisher":  "發行商:",
-		"series":     "系列:",
+		"Number":    "識別碼:",
+		"PublishAt": "發行日期:",
+		"Length":    "長度:",
+		"Director":  "導演:",
+		"Producer":  "製作商:",
+		"Publisher": "發行商:",
+		"Series":    "系列:",
 	}
 )
 
@@ -54,7 +55,7 @@ func FindByNumber(number string) (lyr Lyr, err error) {
 	lyr.Title = doc.Find("h3").First().Text()
 	lyr.Cover = doc.Find(".movie .screencap img").First().AttrOr("src", "")
 
-	data := map[string]string{}
+	t := reflect.ValueOf(&lyr).Elem()
 
 	doc.Find(".movie .info p").Each(func(i int, s *goquery.Selection) {
 		text := s.Text()
@@ -62,14 +63,11 @@ func FindByNumber(number string) (lyr Lyr, err error) {
 		for header, replaceString := range removeString {
 			if strings.Contains(text, replaceString) {
 				text = strings.TrimSpace(strings.Replace(text, replaceString, "", 1))
-				data[header] = text
+
+				t.FieldByName(header).SetString(text)
 			}
 		}
 	})
-
-	for header, content := range data {
-		fmt.Println(header + ": " + content)
-	}
 
 	doc.Find(".movie .info p .genre").Each(func(i int, s *goquery.Selection) {
 		if strings.Compare("", s.AttrOr("onmouseover", "")) == 0 {
