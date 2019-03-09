@@ -59,6 +59,10 @@ var (
 				return err
 			}
 
+			fmt.Println("title: " + doc.Find("h3").First().Text())
+
+			fmt.Println("cover: " + doc.Find(".movie .screencap img").First().AttrOr("src", ""))
+
 			data := map[string]string{}
 
 			doc.Find(".movie .info p").Each(func(i int, s *goquery.Selection) {
@@ -80,8 +84,7 @@ var (
 			var categories []string
 
 			doc.Find(".movie .info p .genre").Each(func(i int, s *goquery.Selection) {
-				attr, _ := s.Attr("onmouseover")
-				if strings.Compare("", attr) == 0 {
+				if strings.Compare("", s.AttrOr("onmouseover", "")) == 0 {
 					actors = append(actors, strings.TrimSpace(s.Text()))
 				} else {
 					categories = append(categories, strings.TrimSpace(s.Text()))
@@ -90,6 +93,18 @@ var (
 
 			fmt.Println(actors)
 			fmt.Println(categories)
+
+			var screenShots []string
+
+			doc.Find("#sample-waterfall .photo-frame img").Each(func(i int, s *goquery.Selection) {
+				screenShots = append(screenShots, s.AttrOr("src", ""))
+			})
+
+			fmt.Println("screenShots:")
+
+			for _, screenShot := range screenShots {
+				fmt.Println(screenShot)
+			}
 
 			return nil
 		},
