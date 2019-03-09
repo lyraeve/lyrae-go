@@ -2,8 +2,10 @@ package command
 
 import (
 	"fmt"
+	"github.com/antchfx/htmlquery"
 	"github.com/urfave/cli"
 	"gopkg.in/h2non/gentleman.v2"
+	"strings"
 )
 
 var (
@@ -20,8 +22,6 @@ var (
 		Action: func(c *cli.Context) error {
 			sn := c.Args().Get(0)
 
-			print(Sites["JavBus"])
-			print(sn)
 			client := gentleman.New()
 			client.URL(Sites["JavBus"])
 
@@ -39,7 +39,18 @@ var (
 				return nil
 			}
 
-			// fmt.Printf("Body: %s", res.String())
+			htmlNode, err := htmlquery.Parse(strings.NewReader(res.String()))
+
+			if err != nil {
+				return err
+			}
+
+			list := htmlquery.Find(htmlNode, "//span[@class='header']/text()")
+
+			for _, node := range list {
+				fmt.Println(node.Data)
+			}
+
 
 			return nil
 		},
