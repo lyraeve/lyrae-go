@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/lyraeve/lyrae-go/finder"
+	"github.com/lyraeve/lyrae-go/finder/javbus"
 	"github.com/urfave/cli"
 )
 
@@ -14,7 +15,7 @@ var (
 		Action: func(c *cli.Context) error {
 			sn := c.Args().Get(0)
 
-			res, err := finder.FindByNumber(sn)
+			res, err := finder.FindByNumber(javbus.New(), sn)
 
 			if err != nil {
 				return err
